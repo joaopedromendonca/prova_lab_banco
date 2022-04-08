@@ -32,6 +32,9 @@ def extract_op():
 
 def transform(v_dict):
     
+    # workaround pro autoincremento que não está funcionando no orm
+    id_tempo_increment = 0
+    
     try:
         
         print("Transformando produtos")
@@ -74,9 +77,10 @@ def transform(v_dict):
         venda : Vendas
         for venda in v_dict['Vendas']:            
             
-            dm_tempo = DM_Tempo(venda)
+            dm_tempo = DM_Tempo(venda,id_tempo_increment)
+            id_tempo_increment += 1
             session_dw.merge(dm_tempo)
-            session_dw.flush()
+            
             _id_tempo = dm_tempo.id_tempo
             
             cli : Clientes
@@ -89,27 +93,26 @@ def transform(v_dict):
                 if vendedor.idvendedor == venda.idvendedor:
                     _id_vendedor = vendedor.idvendedor
             
-            prod : Produtos
-            for prod in v_dict['Produtos']:
-                
-                _desconto_total = 0
-                iv : Itensvenda
-                for iv in v_dict['Itensvenda']:
-                    if prod.idproduto == iv.idvenda and iv.idvenda == venda.idvenda:
-                        _id_produto = prod.idproduto
-                        _val_produto = iv.valorunitario
-                        _desconto_total += iv.desconto
-                        
-                        _v = FT_Vendas(venda.idvenda, _id_tempo,
-                                       _id_cliente, _id_produto,
-                                       _id_vendedor, _val_produto,
-                                       venda.total, _desconto_total,
-                                       _qtde_vendas)
-                        session_dw.merge(_v)
+            _desconto_total = 0
+            iv : Itensvenda
+            for iv in v_dict['Itensvenda']:
+                if iv.idvenda == venda.idvenda:
+                    _id_produto = iv.idproduto
+                    _val_produto = iv.valorunitario
+                    _desconto_total += iv.desconto
+                    
+                    _v = FT_Vendas(venda.idvenda, _id_tempo,
+                                    _id_cliente, _id_produto,
+                                    _id_vendedor, _val_produto,
+                                    venda.total, _desconto_total,
+                                    _qtde_vendas)
+                    print("Id venda:"+ str(_v.id_venda)+"/400")
+                    session_dw.merge(_v)
 
         session_dw.commit()
         
     except Exception as e:
+        session_dw.rollback()
         Traceback(e)
     
 

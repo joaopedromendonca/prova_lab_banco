@@ -1,0 +1,11 @@
+Para rodar a etl é preciso ter o python3.8 ou mais recente, e o módulo sqlalchemy e sqlalchemy_utils instalado via pip
+Exemplo: pip install sqlalchemy sqlalchemy_utils
+
+O arquivo a ser executado é o main.py, para rodá-lo basta digitar:
+{executável_python} main.py 
+Exemplo: python3.8 main.py 
+
+O arquivo settings possui as configurações para conectar com os bancos.
+Ambos estão hospedados no cloudclusters.io, e possuem data de expiração 
+de 7 dias a partir do dia da prova. Caso rode após este prazo mudar as 
+conexões para um banco viável PostgreSQL.

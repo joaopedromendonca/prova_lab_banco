@@ -1,4 +1,4 @@
-from sqlalchemy import Column, NUMERIC, VARCHAR, INTEGER, CHAR, ForeignKey, DATE, create_engine
+from sqlalchemy import Column, NUMERIC, VARCHAR, INTEGER, CHAR, ForeignKey, DATE, Integer, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from settings import settings_dw, settings_op
@@ -22,8 +22,8 @@ def get_engine(settings):
 engine_op = get_engine(settings_op)
 engine_dw = get_engine(settings_dw)
 
-session_op = sessionmaker(bind=engine_op)()
-session_dw = sessionmaker(bind=engine_dw)()
+session_op = sessionmaker(bind=engine_op,autoflush=True)()
+session_dw = sessionmaker(bind=engine_dw,autoflush=True)()
 
 Base = declarative_base()
 Base_dw = declarative_base()
@@ -139,14 +139,15 @@ class DM_Tempo(Base_dw):
 
     __tablename__ = 'dm_tempo'
 
-    id_tempo = Column(INTEGER, primary_key=True, autoincrement=True)
+    id_tempo = Column(Integer, primary_key=True)
     ano = Column(VARCHAR(4))
     trimestre = Column(CHAR(1))
     mes = Column(VARCHAR(20))
     dia = Column(VARCHAR(20))
 
-    def __init__(self, vendas : Vendas) -> None:
+    def __init__(self, vendas : Vendas, id: int) -> None:
         super().__init__()
+        self.id_tempo = id
         self.ano = vendas.data.year
         self.mes = vendas.data.month
         self.dia = vendas.data.day
@@ -165,7 +166,7 @@ class FT_Vendas(Base_dw):
     __tablename__ = 'tf_vendas'
 
     id_venda = Column(INTEGER, primary_key=True)
-    id_tempo = Column(INTEGER, ForeignKey("dm_tempo.id_tempo"), primary_key=True)
+    id_tempo = Column(Integer, ForeignKey("dm_tempo.id_tempo"), primary_key=True)
     id_cliente = Column(INTEGER, ForeignKey("dm_cliente.id_cliente"), primary_key=True)
     id_produto = Column(INTEGER, ForeignKey("dm_produto.id_produto"), primary_key=True)
     id_vendedor = Column(INTEGER, ForeignKey("dm_vendedor.id_vendedor"), primary_key=True)
