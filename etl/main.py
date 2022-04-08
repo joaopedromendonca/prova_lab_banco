@@ -1,4 +1,6 @@
 from inspect import Traceback
+
+from sqlalchemy import and_
 from models import (Produtos, 
                     Vendas, 
                     Itensvenda, 
@@ -77,10 +79,17 @@ def transform(v_dict):
         venda : Vendas
         for venda in v_dict['Vendas']:            
             
-            dm_tempo = DM_Tempo(venda,id_tempo_increment)
-            id_tempo_increment += 1
-            session_dw.merge(dm_tempo)
-            
+            _y = str(venda.data.year)
+            _m = str(venda.data.month)
+            _d = str(venda.data.day)
+            qt = session_dw.query(DM_Tempo).filter(and_(DM_Tempo.ano==_y,DM_Tempo.mes==_m,DM_Tempo.dia==_d)).first()
+            if qt is None:
+                dm_tempo = DM_Tempo(venda,id_tempo_increment)
+                id_tempo_increment += 1
+                session_dw.merge(dm_tempo)
+            else:
+                dm_tempo = qt
+                
             _id_tempo = dm_tempo.id_tempo
             
             cli : Clientes

@@ -140,22 +140,22 @@ class DM_Tempo(Base_dw):
     __tablename__ = 'dm_tempo'
 
     id_tempo = Column(Integer, primary_key=True)
-    ano = Column(VARCHAR(4))
+    ano : str = Column(VARCHAR(4))
     trimestre = Column(CHAR(1))
-    mes = Column(VARCHAR(20))
-    dia = Column(VARCHAR(20))
+    mes : str = Column(VARCHAR(20))
+    dia : str = Column(VARCHAR(20))
 
     def __init__(self, vendas : Vendas, id: int) -> None:
         super().__init__()
         self.id_tempo = id
-        self.ano = vendas.data.year
-        self.mes = vendas.data.month
-        self.dia = vendas.data.day
-        if self.mes < 4:
+        self.ano = str(vendas.data.year)
+        self.mes = str(vendas.data.month)
+        self.dia = str(vendas.data.day)
+        if int(self.mes) < 4:
             self.trimestre = 1
-        elif self.mes < 7:
+        elif int(self.mes) < 7:
             self.trimestre = 2
-        elif self.mes < 10:
+        elif int(self.mes) < 10:
             self.trimestre = 3
         else:
             self.trimestre = 4
